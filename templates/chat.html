@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Style App</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            overflow-x: hidden;
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            max-width: 95%;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+        .developer-toggle {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0px 2px 5px rgba(0, 123, 255, 0.3);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .developer-toggle:hover {
+            background-color: #0056b3;
+        }
+        .developer-toggle:active {
+            transform: scale(0.98);
+        }
+        .chat-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            position: relative;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            text-align: left;
+        }
+        .assistant-message {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+            text-align: left;
+        }
+        .typing-indicator {
+            font-style: italic;
+            color: #888;
+            align-self: flex-start;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+            max-width: 75%;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            font-size: 14px;
+        }
+        .input-container button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            background-color: #25d366;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #1da851;
+        }
+        /* Estilos para el panel de desarrollador */
+        .developer-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            padding: 20px;
+            background-color: #fafafa;
+            box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 1000;
+        }
+        .developer-panel.active {
+            right: 0;
+        }
+        .developer-panel h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .developer-panel p, .developer-panel h4 {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="main-container" id="mainContainer">
+    <!-- Encabezado con el botón de Modo Desarrollador -->
+    <div class="header">
+        <button id="developerToggle" class="developer-toggle" onclick="toggleDeveloperMode()">Modo Desarrollador</button>
+    </div>
+
+    <!-- Contenedor del Chat -->
+    <div class="chat-container">
+        <div class="chat-messages" id="chat"></div>
+
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeydown="handleEnter(event)">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Panel del Modo Desarrollador -->
+<div id="developerPanel" class="developer-panel">
+    <h3>Información de Modo Desarrollador</h3>
+    <p>Tipo de Cultivo Detectado: <span id="cultivoType">N/A</span></p>
+    <div class="characteristics-list">
+        <h4>Características Detectadas:</h4>
+        <ul id="characteristicsList"></ul>
+    </div>
+    <div class="recommendations-list">
+        <h4>Recomendaciones y Asesoría Agraria:</h4>
+        <ul id="recommendationsList"></ul>
+    </div>
+    <div class="recommended-text">
+        <h4>Texto Recomendado:</h4>
+        <p id="textoRecomendado">N/A</p>
+    </div>
+</div>
+
+<script>
+    let developerMode = false;
+
+    function handleEnter(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function toggleDeveloperMode() {
+        developerMode = !developerMode;
+        const developerPanel = document.getElementById("developerPanel");
+
+        if (developerMode) {
+            developerPanel.classList.add("active");
+        } else {
+            developerPanel.classList.remove("active");
+        }
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        addMessage(message, 'user-message');
+        showTypingIndicator();
+
+        fetch("/send_message", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            removeTypingIndicator();
+            const formattedResponse = marked.parse(data.response);
+            addMessage(formattedResponse, 'assistant-message', true);
+
+            // Actualiza el tipo de cultivo en el panel del modo desarrollador
+            if (developerMode) {
+                document.getElementById("cultivoType").textContent = data.cultivo_type;
+
+                // Actualizar la lista de características
+                const characteristicsList = document.getElementById("characteristicsList");
+                characteristicsList.innerHTML = "";
+                for (const [key, value] of Object.entries(data.caracteristicas_dict)) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${key}: ${value}`;
+                    characteristicsList.appendChild(listItem);
+                }
+
+                // Actualizar la lista de recomendaciones
+                const recommendationsList = document.getElementById("recommendationsList");
+                recommendationsList.innerHTML = "";
+                data.recomendaciones_values.forEach(item => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = item;
+                    recommendationsList.appendChild(listItem);
+                });
+
+                // Mostrar el texto recomendado
+                document.getElementById("textoRecomendado").textContent = data.texto_recomendado || "N/A";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            removeTypingIndicator();
+        });
+
+        messageInput.value = "";
+    }
+
+    function addMessage(content, className, isHTML = false) {
+        const chatContainer = document.getElementById("chat");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", className);
+
+        if (isHTML) {
+            messageElement.innerHTML = content;
+        } else {
+            messageElement.textContent = content;
+        }
+
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const chatContainer = document.getElementById("chat");
+        const typingIndicator = document.createElement("div");
+        typingIndicator.classList.add("typing-indicator");
+        typingIndicator.id = "typingIndicator";
+        typingIndicator.textContent = "Escribiendo...";
+        chatContainer.appendChild(typingIndicator);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById("typingIndicator");
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+</script>
+
+</body>
+</html>
