@@ -200,7 +200,7 @@ if tipo_cultivo != "Otro":
         list_dict = filtered_dict
         for each_column in todas_columnas:
             this_list = list(list_dict.keys())
-            # Se comienza con los key que no se detectaron
+            # Se comienza con los key que no se detectarong
             if each_column not in this_list:
                 # busca la columna en el df
                 df_p = df[each_column]
