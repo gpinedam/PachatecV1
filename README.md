@@ -24,9 +24,6 @@ Pachatec es una aplicación web construida con Flask que actúa como un asistent
 │ └── chat.html # Interfaz web para la interacción
 └── README.md # Documentación del proyecto
 
-yaml
-Copiar
-Editar
 
 ---
 
