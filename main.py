@@ -1,4 +1,3 @@
-OPEN_KEY = "sk-AI51AIYblTdgE7gR6IR68WjCW1cgWi1QTju1xYeKSqT3BlbkFJsvN7jKXJxu3ulYUgXy3TX69Ec02LhXisbQ6mVcqLgA"
 from flask import Flask, request, render_template, session, jsonify
 import uuid
 import openai
