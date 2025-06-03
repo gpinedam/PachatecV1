@@ -19,9 +19,13 @@ Pachatec es una aplicación web construida con Flask que actúa como un asistent
 
 .
 ├── app.py # Archivo principal con el servidor Flask
+
 ├── db_pachatec.xlsx # Base de datos con hojas para cada cultivo
+
 ├── templates/
+
 │ └── chat.html # Interfaz web para la interacción
+
 └── README.md # Documentación del proyecto
 
 
