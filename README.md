@@ -45,8 +45,6 @@ pip install flask pandas openai
 Crea un archivo .env o exporta la variable de entorno directamente:
 
 bash
-Copiar
-Editar
 export OPEN_KEY='tu_clave_de_api_de_openai'
 Asegúrate de tener el archivo db_pachatec.xlsx en el mismo directorio con las siguientes hojas:
 
@@ -94,17 +92,11 @@ Recibe un JSON con el mensaje del usuario. Retorna una respuesta generada por la
 
 Ejemplo de payload:
 
-json
-Copiar
-Editar
 {
   "message": "Mi cultivo de plátano tiene manchas negras en las hojas."
 }
 Ejemplo de respuesta:
 
-json
-Copiar
-Editar
 {
   "response": "Te recomendamos aplicar...",
   "cultivo_type": "Plátano",
